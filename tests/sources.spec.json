@@ -32,7 +32,7 @@
     },
     {
       "testId": "apod-source",
-      "description": "NASA's Astronomy Picture of the Day API answers.",
+      "description": "NASA's Astronomy Picture of the Day API answers. NASA's API fails now and then, so the step retries twice before it counts as a failure.",
       "steps": [
         {
           "httpRequest": {
@@ -47,7 +47,16 @@
                 "Accept": "application/json"
               }
             }
-          }
+          },
+          "onFail": [
+            {
+              "retry": {
+                "limit": 2,
+                "delay": 3000,
+                "backoff": "exponential"
+              }
+            }
+          ]
         }
       ]
     },
