@@ -90,17 +90,28 @@ async function apodFromPage() {
   const abs = (u) => (u ? new URL(u.trim(), APOD_PAGE).href : null);
   const strip = (t) => t.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
-  const img = html.match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
-  const hd = html.match(/<a[^>]+href\s*=\s*["'](image\/[^"']+)["']/i);
+  const meta = (prop) => {
+    const m = html.match(new RegExp(`<meta[^>]+(?:property|name)\\s*=\\s*["']${prop}["'][^>]*>`, "i"));
+    const c = m && m[0].match(/content\s*=\s*["']([^"']*)["']/i);
+    return c ? c[1] : null;
+  };
+  // Every image on the page. The APOD picture lives under an image/ folder
+  // named for the year and month, such as image/2611/; site logos don't.
+  const imgs = [...html.matchAll(/<img[^>]+src\s*=\s*["']([^"']+)["']/gi)].map((m) => m[1]);
+  console.log(`apod: page has ${html.length} characters and ${imgs.length} images: ${imgs.slice(0, 6).join(", ")}`);
+  const picture = imgs.find((u) => /(^|\/)image\/\d{4}\//.test(u)) || meta("og:image");
+  const hd = html.match(/<a[^>]+href\s*=\s*["']([^"']*image\/\d{4}\/[^"']+)["']/i);
   const video = html.match(/<iframe[^>]+src\s*=\s*["']([^"']+)["']/i);
-  const title = html.match(/<center>\s*<b>([\s\S]*?)<\/b>/i) || html.match(/<b>([\s\S]*?)<\/b>/i);
+  const titleTag = html.match(/<title>([\s\S]*?)<\/title>/i);
+  const title = html.match(/<center>\s*<b>([\s\S]*?)<\/b>/i);
   const explanation = html.match(/Explanation:\s*<\/b>([\s\S]*?)<p>\s*<center>/i) || html.match(/Explanation:([\s\S]*?)Tomorrow/i);
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
-  if (!img && !video) throw new Error("The APOD page has no image or video today.");
+  if (!picture && !video) throw new Error("The APOD page has no picture or video that the capture recognizes.");
+  const img = picture ? [null, picture] : null;
   return {
     date,
-    title: title ? strip(title[1]) : "Astronomy Picture of the Day",
-    explanation: explanation ? strip(explanation[1]) : "",
+    title: title ? strip(title[1]) : meta("og:title") || (titleTag ? strip(titleTag[1]).replace(/^APOD:\s*[\d\w ]+-\s*/, "") : "Astronomy Picture of the Day"),
+    explanation: explanation ? strip(explanation[1]) : meta("og:description") || "",
     mediaType: img ? "image" : "video",
     url: https(abs(img ? img[1] : video[1])),
     hdurl: https(abs(hd && hd[1])),
