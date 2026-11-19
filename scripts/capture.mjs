@@ -77,12 +77,52 @@ await capture("weather", async () => {
 // ---------------------------------------------------------------------------
 // NASA Astronomy Picture of the Day
 // ---------------------------------------------------------------------------
+const APOD_PAGE = "https://apod.nasa.gov/apod/astropix.html";
+// Browsers block http:// images on an https:// page, so ask for https.
+const https = (u) => (u ? u.replace(/^http:\/\//, "https://") : null);
+
+// NASA's APOD API fails now and then. When it does, read today's APOD web
+// page instead: it has the same picture, title, and explanation.
+async function apodFromPage() {
+  const res = await fetch(APOD_PAGE, { headers: { "User-Agent": UA } });
+  if (!res.ok) throw new Error(`${APOD_PAGE} answered ${res.status} ${res.statusText}`);
+  const html = await res.text();
+  const abs = (u) => (u ? new URL(u.trim(), APOD_PAGE).href : null);
+  const strip = (t) => t.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+
+  const img = html.match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
+  const hd = html.match(/<a[^>]+href\s*=\s*["'](image\/[^"']+)["']/i);
+  const video = html.match(/<iframe[^>]+src\s*=\s*["']([^"']+)["']/i);
+  const title = html.match(/<center>\s*<b>([\s\S]*?)<\/b>/i) || html.match(/<b>([\s\S]*?)<\/b>/i);
+  const explanation = html.match(/Explanation:\s*<\/b>([\s\S]*?)<p>\s*<center>/i) || html.match(/Explanation:([\s\S]*?)Tomorrow/i);
+  const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
+  if (!img && !video) throw new Error("The APOD page has no image or video today.");
+  return {
+    date,
+    title: title ? strip(title[1]) : "Astronomy Picture of the Day",
+    explanation: explanation ? strip(explanation[1]) : "",
+    mediaType: img ? "image" : "video",
+    url: https(abs(img ? img[1] : video[1])),
+    hdurl: https(abs(hd && hd[1])),
+    thumbnail: null,
+    copyright: null,
+    source: APOD_PAGE,
+    from: "page",
+  };
+}
+
 await capture("apod", async () => {
   const key = process.env.NASA_API_KEY || "DEMO_KEY";
-  // thumbs=true asks for a preview image when today's entry is a video.
-  const a = await getJson(`https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(key)}&thumbs=true`);
-  // Browsers block http:// images on an https:// page, so ask for https.
-  const https = (u) => (u ? u.replace(/^http:\/\//, "https://") : null);
+  let a;
+  try {
+    // thumbs=true asks for a preview image when today's entry is a video.
+    a = await getJson(`https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(key)}&thumbs=true`);
+  } catch (err) {
+    console.log(`apod: the API failed (${err.message}), so reading the APOD page instead`);
+    const p = await apodFromPage();
+    console.log(`apod: from the page: ${p.date}, ${p.mediaType}, ${p.url}`);
+    return p;
+  }
   console.log(`apod: ${a.date}, ${a.media_type}, ${a.url}${a.thumbnail_url ? `, thumbnail ${a.thumbnail_url}` : ""}`);
   return {
     date: a.date,
@@ -94,6 +134,7 @@ await capture("apod", async () => {
     thumbnail: https(a.thumbnail_url),
     copyright: a.copyright ? a.copyright.trim() : null,
     source: `https://apod.nasa.gov/apod/ap${a.date.slice(2).replace(/-/g, "")}.html`,
+    from: "api",
   };
 });
 

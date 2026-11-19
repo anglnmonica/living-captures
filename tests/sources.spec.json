@@ -32,21 +32,14 @@
     },
     {
       "testId": "apod-source",
-      "description": "NASA's Astronomy Picture of the Day API answers. NASA's API fails now and then, so the step retries twice before it counts as a failure.",
+      "description": "NASA's Astronomy Picture of the Day page answers. The capture reads NASA's API first and falls back to this page when the API fails, so this page is what the card depends on.",
       "steps": [
         {
-          "httpRequest": {
-            "url": "https://api.nasa.gov/planetary/apod?api_key=$NASA_API_KEY",
-            "method": "get",
+          "checkLink": {
+            "url": "https://apod.nasa.gov/apod/astropix.html",
             "statusCodes": [
               200
-            ],
-            "request": {
-              "headers": {
-                "User-Agent": "living-captures (https://github.com/anglnmonica/living-captures)",
-                "Accept": "application/json"
-              }
-            }
+            ]
           },
           "onFail": [
             {

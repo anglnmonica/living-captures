@@ -11,7 +11,7 @@ test that checked it, and whether it passed.
 | Capture | Source | Test |
 | --- | --- | --- |
 | Berkeley weather, and what to wear | [National Weather Service API](https://www.weather.gov/documentation/services-web-api) | `weather-source`: Berkeley's forecast comes from the Bay Area office (MTR) |
-| NASA's astronomy picture of the day | [NASA APOD API](https://api.nasa.gov/) | `apod-source`: the API answers |
+| NASA's astronomy picture of the day | [NASA APOD API](https://api.nasa.gov/), or the [APOD page](https://apod.nasa.gov/apod/astropix.html) when the API fails | `apod-source`: the APOD page answers |
 | Status of the tools I use | GitHub, Anthropic, and npm status pages | `status-github`, `status-anthropic`, `status-npm`: each reports no problems |
 | New documentation tools on GitHub | [GitHub search API](https://docs.github.com/en/rest/search) | `docs-tools-source`: the search answers |
 | German word of the day | [`site/data/german-words.json`](site/data/german-words.json), a list kept in this repository | `page-shows-captures`: the page shows every capture |
