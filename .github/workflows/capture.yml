@@ -81,4 +81,6 @@ jobs:
         with:
           name: doc-detective-results
           path: results/
+          # Doc Detective writes its reports to a hidden .doc-detective folder.
+          include-hidden-files: true
           if-no-files-found: ignore

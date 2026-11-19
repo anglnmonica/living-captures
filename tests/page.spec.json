@@ -4,15 +4,47 @@
   "tests": [
     {
       "testId": "page-shows-captures",
-      "description": "The page loads, shows all five captures, and gives a clothing suggestion.",
+      "description": "The page loads and every card finishes loading: it shows its capture, or a clear error if that source failed today. A source outage doesn't fail this test; a broken page does.",
       "steps": [
-        { "goTo": "http://localhost:8000/" },
-        { "find": { "selector": "h1", "elementText": "Living captures" } },
-        { "find": { "selector": "#weather .wear", "timeout": 10000 } },
-        { "find": { "selector": "#apod h3", "timeout": 10000 } },
-        { "find": { "selector": "#status li", "timeout": 10000 } },
-        { "find": { "selector": "#docs-tools h2", "elementText": "New documentation tools on GitHub" } },
-        { "find": { "selector": "#german .word", "timeout": 10000 } },
+        {
+          "goTo": "http://localhost:8000/"
+        },
+        {
+          "find": {
+            "selector": "h1",
+            "elementText": "Living captures"
+          }
+        },
+        {
+          "find": {
+            "selector": "#weather .wear, #weather .error",
+            "timeout": 10000
+          }
+        },
+        {
+          "find": {
+            "selector": "#apod .apod, #apod .error",
+            "timeout": 10000
+          }
+        },
+        {
+          "find": {
+            "selector": "#status .tools, #status .error",
+            "timeout": 10000
+          }
+        },
+        {
+          "find": {
+            "selector": "#docs-tools h2",
+            "elementText": "New documentation tools on GitHub"
+          }
+        },
+        {
+          "find": {
+            "selector": "#german .word, #german .error",
+            "timeout": 10000
+          }
+        },
         {
           "screenshot": {
             "path": "today.png",

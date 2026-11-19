@@ -19,10 +19,18 @@ const UA = "living-captures (https://github.com/anglnmonica/living-captures)";
 // Berkeley, California
 const BERKELEY = { lat: 37.8716, lon: -122.2727 };
 
-async function getJson(url, headers = {}) {
-  const res = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/json", ...headers } });
-  if (!res.ok) throw new Error(`${url} answered ${res.status} ${res.statusText}`);
-  return res.json();
+// Retries a server error (5xx) up to three times, a few seconds apart, since
+// some APIs, such as NASA's, fail now and then and answer on the next try.
+async function getJson(url, headers = {}, tries = 3) {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/json", ...headers } });
+    if (res.ok) return res.json();
+    if (res.status < 500 || attempt >= tries) {
+      const shown = url.replace(/api_key=[^&]+/, "api_key=…");
+      throw new Error(`${shown} answered ${res.status} ${res.statusText}`);
+    }
+    await new Promise((r) => setTimeout(r, 3000 * attempt));
+  }
 }
 
 function save(name, data) {
