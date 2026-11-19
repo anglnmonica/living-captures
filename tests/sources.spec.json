@@ -32,11 +32,11 @@
     },
     {
       "testId": "apod-source",
-      "description": "NASA's Astronomy Picture of the Day page answers. The capture reads NASA's API first and falls back to this page when the API fails, so this page is what the card depends on.",
+      "description": "NASA's Astronomy Picture of the Day page answers. The capture reads NASA's API first and falls back to this page when the API fails.",
       "steps": [
         {
           "checkLink": {
-            "url": "https://apod.nasa.gov/apod/astropix.html",
+            "url": "https://science.nasa.gov/apod/",
             "statusCodes": [
               200
             ]

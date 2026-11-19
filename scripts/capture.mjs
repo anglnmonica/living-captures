@@ -77,44 +77,41 @@ await capture("weather", async () => {
 // ---------------------------------------------------------------------------
 // NASA Astronomy Picture of the Day
 // ---------------------------------------------------------------------------
-const APOD_PAGE = "https://apod.nasa.gov/apod/astropix.html";
+const APOD_PAGE = "https://science.nasa.gov/apod/";
 // Browsers block http:// images on an https:// page, so ask for https.
 const https = (u) => (u ? u.replace(/^http:\/\//, "https://") : null);
 
-// NASA's APOD API fails now and then. When it does, read today's APOD web
-// page instead: it has the same picture, title, and explanation.
+// NASA's APOD API fails now and then. When it does, read today's APOD page
+// on NASA Science instead. Its pictures are stored by year and month, such as
+// .../cds/apod/apod/2026/november/Horsehead_Nebula.jpg, which tells today's
+// picture apart from logos and promotions. (The page's og:image preview tag
+// isn't today's picture, so it isn't used.)
 async function apodFromPage() {
   const res = await fetch(APOD_PAGE, { headers: { "User-Agent": UA } });
   if (!res.ok) throw new Error(`${APOD_PAGE} answered ${res.status} ${res.statusText}`);
   const html = await res.text();
-  const abs = (u) => (u ? new URL(u.trim(), APOD_PAGE).href : null);
-  const strip = (t) => t.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+  const strip = (t) => t.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#8217;/g, "’").replace(/\s+/g, " ").trim();
 
-  const meta = (prop) => {
-    const m = html.match(new RegExp(`<meta[^>]+(?:property|name)\\s*=\\s*["']${prop}["'][^>]*>`, "i"));
-    const c = m && m[0].match(/content\s*=\s*["']([^"']*)["']/i);
-    return c ? c[1] : null;
-  };
-  // Every image on the page. The APOD picture lives under an image/ folder
-  // named for the year and month, such as image/2611/; site logos don't.
-  const imgs = [...html.matchAll(/<img[^>]+src\s*=\s*["']([^"']+)["']/gi)].map((m) => m[1]);
-  console.log(`apod: page has ${html.length} characters and ${imgs.length} images: ${imgs.slice(0, 6).join(", ")}`);
-  const picture = imgs.find((u) => /(^|\/)image\/\d{4}\//.test(u)) || meta("og:image");
-  const hd = html.match(/<a[^>]+href\s*=\s*["']([^"']*image\/\d{4}\/[^"']+)["']/i);
-  const video = html.match(/<iframe[^>]+src\s*=\s*["']([^"']+)["']/i);
-  const titleTag = html.match(/<title>([\s\S]*?)<\/title>/i);
-  const title = html.match(/<center>\s*<b>([\s\S]*?)<\/b>/i);
-  const explanation = html.match(/Explanation:\s*<\/b>([\s\S]*?)<p>\s*<center>/i) || html.match(/Explanation:([\s\S]*?)Tomorrow/i);
+  const month = new Intl.DateTimeFormat("en-US", { month: "long", timeZone: "America/New_York" }).format(new Date()).toLowerCase();
+  const found = [...html.matchAll(/https?:\/\/[^"'\s<>]*\/cds\/apod\/apod\/(\d{4})\/([a-z]+)\/[^"'\s<>?]+\.(?:jpe?g|png|gif|webp)/gi)]
+    .map((m) => ({ url: m[0], month: m[2].toLowerCase() }))
+    .filter((m) => !/annotated/i.test(m.url));
+  console.log(`apod: page has ${found.length} APOD pictures: ${[...new Set(found.map((f) => f.url))].slice(0, 4).join(", ")}`);
+  const pick = found.find((f) => f.month === month) || found[0];
+  const video = html.match(/<iframe[^>]+src\s*=\s*["']([^"']*(?:youtube|vimeo)[^"']*)["']/i);
+  if (!pick && !video) throw new Error("The APOD page has no picture or video that the capture recognizes.");
+
+  const h1 = [...html.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) => strip(m[1])).find((t) => t && !/^(astronomy picture of the day|apod)$/i.test(t));
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
-  if (!picture && !video) throw new Error("The APOD page has no picture or video that the capture recognizes.");
-  const img = picture ? [null, picture] : null;
+  const base = pick ? pick.url.replace(/\/dynamicimage\//, "/dynamicimage/") : null;
   return {
     date,
-    title: title ? strip(title[1]) : meta("og:title") || (titleTag ? strip(titleTag[1]).replace(/^APOD:\s*[\d\w ]+-\s*/, "") : "Astronomy Picture of the Day"),
-    explanation: explanation ? strip(explanation[1]) : meta("og:description") || "",
-    mediaType: img ? "image" : "video",
-    url: https(abs(img ? img[1] : video[1])),
-    hdurl: https(abs(hd && hd[1])),
+    title: h1 || "Today's astronomy picture",
+    explanation: "",
+    mediaType: pick ? "image" : "video",
+    // The dynamic image service resizes on request; 1600 pixels wide is plenty.
+    url: pick ? https(`${base}?w=1600&fit=clip`) : https(video[1]),
+    hdurl: pick ? https(base) : null,
     thumbnail: null,
     copyright: null,
     source: APOD_PAGE,
@@ -144,7 +141,7 @@ await capture("apod", async () => {
     hdurl: https(a.hdurl),
     thumbnail: https(a.thumbnail_url),
     copyright: a.copyright ? a.copyright.trim() : null,
-    source: `https://apod.nasa.gov/apod/ap${a.date.slice(2).replace(/-/g, "")}.html`,
+    source: APOD_PAGE,
     from: "api",
   };
 });

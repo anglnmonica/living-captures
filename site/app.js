@@ -110,7 +110,7 @@ async function apod() {
       el("div", {},
         el("h3", {}, a.title),
         el("p", { class: "credit" }, `${a.date}${a.copyright ? ` · Image credit: ${a.copyright}` : ""} · `, el("a", { href: a.source }, "View on APOD")),
-        el("div", { class: "text" }, el("p", {}, a.explanation)))),
+        el("div", { class: "text" }, el("p", {}, a.explanation || "Read the explanation on NASA's site.")))),
   );
 }
 
