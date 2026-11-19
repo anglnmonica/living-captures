@@ -177,7 +177,7 @@ async function receipts() {
   const all = Object.values(r.tests);
   const passed = all.filter((t) => t.result === "PASS").length;
   run.replaceChildren(
-    `This morning's run, ${timeFmt.format(new Date(r.runAt))}: ${passed} of ${all.length} tests passed. `,
+    `Latest run, ${timeFmt.format(new Date(r.runAt))}: ${passed} of ${all.length} tests passed. `,
     r.runUrl ? el("a", { href: r.runUrl }, "See the run") : "",
   );
 }
