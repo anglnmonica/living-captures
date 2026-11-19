@@ -79,15 +79,19 @@ await capture("weather", async () => {
 // ---------------------------------------------------------------------------
 await capture("apod", async () => {
   const key = process.env.NASA_API_KEY || "DEMO_KEY";
-  const a = await getJson(`https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(key)}`);
+  // thumbs=true asks for a preview image when today's entry is a video.
+  const a = await getJson(`https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(key)}&thumbs=true`);
+  // Browsers block http:// images on an https:// page, so ask for https.
+  const https = (u) => (u ? u.replace(/^http:\/\//, "https://") : null);
+  console.log(`apod: ${a.date}, ${a.media_type}, ${a.url}${a.thumbnail_url ? `, thumbnail ${a.thumbnail_url}` : ""}`);
   return {
     date: a.date,
     title: a.title,
     explanation: a.explanation,
     mediaType: a.media_type,
-    url: a.url,
-    hdurl: a.hdurl || null,
-    thumbnail: a.thumbnail_url || null,
+    url: https(a.url),
+    hdurl: https(a.hdurl),
+    thumbnail: https(a.thumbnail_url),
     copyright: a.copyright ? a.copyright.trim() : null,
     source: `https://apod.nasa.gov/apod/ap${a.date.slice(2).replace(/-/g, "")}.html`,
   };
