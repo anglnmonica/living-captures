@@ -1,0 +1,84 @@
+# Captures today's data, checks every source and the page with Doc Detective,
+# and publishes the site to GitHub Pages.
+#
+# Runs every morning, on every push to main, and when you start it from the
+# Actions tab (Capture today > Run workflow).
+#
+# Nothing is committed: each run publishes a fresh copy of the site, so the
+# repository's history stays clean.
+
+name: Capture today
+
+on:
+  schedule:
+    - cron: "23 13 * * *" # 13:23 UTC: 5:23 AM in California in winter, 6:23 AM in summer
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Capture today's data
+        # Each capture saves its own file in site/data, even when another fails.
+        env:
+          NASA_API_KEY: ${{ secrets.NASA_API_KEY || 'DEMO_KEY' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/capture.mjs
+
+      - name: Serve the page at http://localhost:8000
+        run: |
+          python3 -m http.server 8000 --directory site > /dev/null 2>&1 &
+          sleep 2
+
+      - name: Check the sources and the page with Doc Detective
+        # A failing test doesn't stop the run: a red status test means a tool
+        # is having problems today, and the page shows that.
+        id: tests
+        continue-on-error: true
+        env:
+          NASA_API_KEY: ${{ secrets.NASA_API_KEY || 'DEMO_KEY' }}
+        run: >
+          npx --yes doc-detective@4
+          --config .doc-detective.json
+          --input tests
+          --output results
+          -r terminal -r runFolder
+
+      - name: Record each test's result for the page
+        if: always()
+        run: node scripts/results.mjs results
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Keep the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doc-detective-results
+          path: results/
+          if-no-files-found: ignore

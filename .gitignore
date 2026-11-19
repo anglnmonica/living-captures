@@ -1,0 +1,6 @@
+# Written by each run, then published. Not committed.
+results/
+site/data/*.json
+!site/data/german-words.json
+site/data/*.png
+node_modules/

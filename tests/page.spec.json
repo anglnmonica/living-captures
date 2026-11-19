@@ -1,0 +1,26 @@
+{
+  "specId": "page",
+  "description": "The page shows today's captures the way a visitor sees them.",
+  "tests": [
+    {
+      "testId": "page-shows-captures",
+      "description": "The page loads, shows all five captures, and gives a clothing suggestion.",
+      "steps": [
+        { "goTo": "http://localhost:8000/" },
+        { "find": { "selector": "h1", "elementText": "Living captures" } },
+        { "find": { "selector": "#weather .wear", "timeout": 10000 } },
+        { "find": { "selector": "#apod h3", "timeout": 10000 } },
+        { "find": { "selector": "#status li", "timeout": 10000 } },
+        { "find": { "selector": "#docs-tools h2", "elementText": "New documentation tools on GitHub" } },
+        { "find": { "selector": "#german .word", "timeout": 10000 } },
+        {
+          "screenshot": {
+            "path": "today.png",
+            "directory": "site/data",
+            "overwrite": "true"
+          }
+        }
+      ]
+    }
+  ]
+}

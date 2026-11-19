@@ -1,0 +1,28 @@
+{
+  "input": [
+    "tests"
+  ],
+  "output": "results",
+  "logLevel": "info",
+  "telemetry": {
+    "send": false
+  },
+  "runOn": [
+    {
+      "platforms": [
+        "linux"
+      ],
+      "browsers": [
+        {
+          "name": "chrome",
+          "headless": true,
+          "window": {
+            "width": 1280,
+            "height": 1600
+          }
+        }
+      ]
+    }
+  ],
+  "relativePathBase": "cwd"
+}

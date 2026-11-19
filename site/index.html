@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Living captures</title>
+<meta name="description" content="Small daily tests that capture something new every day: Berkeley weather and what to wear, NASA's picture of the day, tool status, new documentation tools, and a German word. Each capture is checked by Doc Detective.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <p class="date" id="today">Today</p>
+    <h1>Living captures</h1>
+    <p class="lede">Small tests that capture something new every day. Each morning, GitHub Actions fetches today's data, then <a href="https://github.com/doc-detective/doc-detective">Doc Detective</a> checks every source and this page. Each card shows the test that checked it.</p>
+    <p class="run" id="run">Loading this morning's run…</p>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <section class="card wide-left" id="weather" aria-labelledby="weather-h">
+    <h2 id="weather-h">Berkeley weather, and what to wear</h2>
+    <div class="body"><p class="empty">Loading the forecast…</p></div>
+    <details class="how">
+      <summary>How the suggestion works</summary>
+      <p>The forecast comes from the National Weather Service. The suggestion follows these rules, using the next daytime high:</p>
+      <ul>
+        <li>80°F or warmer: T-shirt</li>
+        <li>68–79°F: light layers</li>
+        <li>58–67°F: sweater or light jacket</li>
+        <li>48–57°F: warm jacket</li>
+        <li>Below 48°F: coat, and maybe a hat</li>
+        <li>Rain chance 40% or more: umbrella. 20–39%: a hood, just in case.</li>
+        <li>Wind 15 mph or more: something windproof.</li>
+      </ul>
+    </details>
+    <p class="receipt" data-tests="weather-source"></p>
+  </section>
+
+  <section class="card narrow-right" id="german" aria-labelledby="german-h">
+    <h2 id="german-h">German word of the day</h2>
+    <div class="body"><p class="empty">Loading today's word…</p></div>
+    <p class="receipt" data-tests="page-shows-captures"></p>
+  </section>
+
+  <section class="card full" id="apod" aria-labelledby="apod-h">
+    <h2 id="apod-h">NASA's astronomy picture of the day</h2>
+    <div class="body"><p class="empty">Loading today's picture…</p></div>
+    <p class="receipt" data-tests="apod-source"></p>
+  </section>
+
+  <section class="card narrow-left" id="status" aria-labelledby="status-h">
+    <h2 id="status-h">Status of the tools I use</h2>
+    <div class="body"><p class="empty">Loading status…</p></div>
+    <p class="receipt" data-tests="status-github status-anthropic status-npm"></p>
+  </section>
+
+  <section class="card wide-right" id="docs-tools" aria-labelledby="docs-h">
+    <h2 id="docs-h">New documentation tools on GitHub</h2>
+    <div class="body"><p class="empty">Loading repositories…</p></div>
+    <p class="receipt" data-tests="docs-tools-source"></p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>Built by <a href="https://anglnmonica.github.io/">Angelin Monica Selvaraj</a>. The tests, the capture script, and this page are in the <a href="https://github.com/anglnmonica/living-captures">living-captures repository</a>. A failing test isn't always a broken page: a red status test means that tool is having problems today, which is what that capture is for.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
