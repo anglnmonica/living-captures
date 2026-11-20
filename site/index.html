@@ -40,33 +40,160 @@
         <li>Wind 15 mph or more: something windproof.</li>
       </ul>
     </details>
+    <details class="tested">
+      <summary>How this is tested</summary>
+      <h3>What does this prove?</h3>
+      <p>That a test can follow an API the way a reader follows a guide: one call gives you the address for the next. Many API guides chain calls like this, and that's where docs often go stale, when a response changes shape.</p>
+      <h3>What happens when it runs?</h3>
+      <ol><li>The capture script asks the National Weather Service which forecast covers Berkeley's coordinates. The answer includes the forecast's address.</li><li>It fetches the forecast from that address, and saves the next four periods.</li><li>Doc Detective makes the first call again and checks that Berkeley's forecast comes from the San Francisco Bay Area office, <code>MTR</code>.</li><li>The page turns the next daytime forecast into a clothing suggestion, using the rules under <strong>How the suggestion works</strong>.</li></ol>
+      <h3>What would make it fail?</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Fails the test</th><th scope="col">Doesn't fail the test</th></tr></thead>
+        <tbody><tr><td>The Weather Service stops answering, or answers with an error</td><td>Rain, wind, or a heat wave: the weather is the data, not the test</td></tr><tr><td>The response no longer says Berkeley is covered by the <code>MTR</code> office</td><td>A different suggestion from yesterday's</td></tr><tr><td>The response changes shape, so <code>gridId</code> is missing</td><td></td></tr></tbody>
+      </table></div>
+      <h3>Where's the test?</h3>
+      <pre><code>{ &quot;httpRequest&quot;: {
+    &quot;url&quot;: &quot;https://api.weather.gov/points/37.8716,-122.2727&quot;,
+    &quot;method&quot;: &quot;get&quot;,
+    &quot;response&quot;: { &quot;body&quot;: { &quot;properties&quot;: { &quot;gridId&quot;: &quot;MTR&quot; } } },
+    &quot;statusCodes&quot;: [200]
+} }</code></pre>
+      <p class="test-link">Request headers are left out here. <a href="https://github.com/anglnmonica/living-captures/blob/main/tests/sources.spec.json">See the full test on GitHub</a></p>
+    </details>
     <p class="receipt" data-tests="weather-source"></p>
   </section>
 
   <section class="card narrow-right" id="german" aria-labelledby="german-h">
     <h2 id="german-h">German word of the day</h2>
     <div class="body"><p class="empty">Loading today's word…</p></div>
+    <details class="tested">
+      <summary>How this is tested</summary>
+      <h3>What does this prove?</h3>
+      <p>That a test can check the page itself, not just its data. The German word comes from a list in this repository, so there's no outside source to check. What can break is the page that shows it.</p>
+      <h3>What happens when it runs?</h3>
+      <ol><li>Nothing is fetched: the page picks today's word from <code>german-words.json</code>, based on the date in California.</li><li>After the captures run, the site is served on the test machine.</li><li>Doc Detective opens it in Chrome, as a visitor would, and checks that every card finished loading, including this word.</li><li>It takes a screenshot of the whole page.</li></ol>
+      <h3>What would make it fail?</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Fails the test</th><th scope="col">Doesn't fail the test</th></tr></thead>
+        <tbody><tr><td>The page's script breaks, so a card never finishes loading</td><td>Another card's source is down: that card shows its error message, which still counts as finished</td></tr><tr><td>A card is renamed or removed without updating the test</td><td>Today's word is one you've already seen: the list repeats</td></tr><tr><td>The word list is empty or isn't valid JSON</td><td></td></tr></tbody>
+      </table></div>
+      <h3>Where's the test?</h3>
+      <pre><code>{ &quot;goTo&quot;: &quot;http://localhost:8000/&quot; },
+{ &quot;find&quot;: { &quot;selector&quot;: &quot;h1&quot;, &quot;elementText&quot;: &quot;Living captures&quot; } },
+{ &quot;find&quot;: { &quot;selector&quot;: &quot;#german .word, #german .error&quot;, &quot;timeout&quot;: 10000 } },
+{ &quot;screenshot&quot;: { &quot;path&quot;: &quot;today.png&quot;, &quot;directory&quot;: &quot;site/data&quot;, &quot;overwrite&quot;: &quot;true&quot; } }</code></pre>
+      <p class="test-link">These are four of the test's eight steps. <a href="https://github.com/anglnmonica/living-captures/blob/main/tests/page.spec.json">See the full test on GitHub</a></p>
+    </details>
     <p class="receipt" data-tests="page-shows-captures"></p>
   </section>
 
   <section class="card full" id="apod" aria-labelledby="apod-h">
     <h2 id="apod-h">NASA's astronomy picture of the day</h2>
     <div class="body"><p class="empty">Loading today's picture…</p></div>
+    <details class="tested">
+      <summary>How this is tested</summary>
+      <h3>What does this prove?</h3>
+      <p>That a capture can survive its source failing. NASA's picture of the day API often returns server errors, so the capture falls back to NASA's web page. The test checks the page, because the page is what the card depends on when the API fails.</p>
+      <h3>What happens when it runs?</h3>
+      <ol><li>The capture script asks NASA's API for today's picture, retrying up to three times.</li><li>If the API keeps failing, it reads NASA's APOD page instead, and picks the image filed under the current month. The page also shows an unrelated image in its preview tag, so that tag is ignored.</li><li>Doc Detective checks that NASA's APOD page answers, retrying twice before it counts a failure.</li></ol>
+      <h3>What would make it fail?</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Fails the test</th><th scope="col">Doesn't fail the test</th></tr></thead>
+        <tbody><tr><td>NASA's APOD page doesn't answer, even after two retries</td><td>NASA's API fails: the capture uses the page, and this test passes</td></tr><tr><td>NASA moves the page without a redirect</td><td>Today's entry is a video instead of a picture: the card links to it</td></tr></tbody>
+      </table></div>
+      <h3>Where's the test?</h3>
+      <pre><code>{ &quot;checkLink&quot;: {
+    &quot;url&quot;: &quot;https://science.nasa.gov/apod/&quot;,
+    &quot;statusCodes&quot;: [200]
+  },
+  &quot;onFail&quot;: [{ &quot;retry&quot;: { &quot;limit&quot;: 2, &quot;delay&quot;: 3000, &quot;backoff&quot;: &quot;exponential&quot; } }]
+}</code></pre>
+      <p class="test-link"><a href="https://github.com/anglnmonica/living-captures/blob/main/tests/sources.spec.json">See the full test on GitHub</a></p>
+    </details>
     <p class="receipt" data-tests="apod-source"></p>
   </section>
 
   <section class="card narrow-left" id="status" aria-labelledby="status-h">
     <h2 id="status-h">Status of the tools I use</h2>
     <div class="body"><p class="empty">Loading status…</p></div>
+    <details class="tested">
+      <summary>How this is tested</summary>
+      <h3>What does this prove?</h3>
+      <p>That a failing test can be good news. These tests fail on purpose when a tool reports a problem, so a red result is the capture doing its job: it shows the day's outage, not a broken page.</p>
+      <h3>What happens when it runs?</h3>
+      <ol><li>The capture script reads the status page of GitHub, Anthropic, and npm, and saves each tool's status.</li><li>Doc Detective calls each status page and checks that the tool reports no problems: <code>"indicator": "none"</code>.</li><li>The card shows a green, amber, or red dot for each tool, and its own description.</li></ol>
+      <h3>What would make it fail?</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Fails the test</th><th scope="col">Doesn't fail the test</th></tr></thead>
+        <tbody><tr><td>The tool reports an incident: minor, major, or critical</td><td>Nothing, unless a tool has a problem: on a normal day, all three pass</td></tr><tr><td>The status page doesn't answer</td><td></td></tr></tbody>
+      </table></div>
+      <h3>Where's the test?</h3>
+      <pre><code>{ &quot;httpRequest&quot;: {
+    &quot;url&quot;: &quot;https://www.githubstatus.com/api/v2/status.json&quot;,
+    &quot;method&quot;: &quot;get&quot;,
+    &quot;response&quot;: { &quot;body&quot;: { &quot;status&quot;: { &quot;indicator&quot;: &quot;none&quot; } } },
+    &quot;statusCodes&quot;: [200]
+} }</code></pre>
+      <p class="test-link">This is the GitHub test. The Anthropic and npm tests are the same, with their own addresses. Request headers are left out here. <a href="https://github.com/anglnmonica/living-captures/blob/main/tests/sources.spec.json">See the full test on GitHub</a></p>
+    </details>
     <p class="receipt" data-tests="status-github status-anthropic status-npm"></p>
   </section>
 
   <section class="card wide-right" id="docs-tools" aria-labelledby="docs-h">
     <h2 id="docs-h">New documentation tools on GitHub</h2>
     <div class="body"><p class="empty">Loading repositories…</p></div>
+    <details class="tested">
+      <summary>How this is tested</summary>
+      <h3>What does this prove?</h3>
+      <p>That a capture can use a value that changes every run. The search covers the past seven days, so the script works out the start date each morning, rather than storing a fixed date that goes out of date.</p>
+      <h3>What happens when it runs?</h3>
+      <ol><li>The capture script works out the date seven days ago.</li><li>It asks GitHub's search API for repositories tagged <code>documentation</code> and created since that date, most-starred first.</li><li>Doc Detective checks that GitHub's search answers a search for that tag.</li></ol>
+      <h3>What would make it fail?</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Fails the test</th><th scope="col">Doesn't fail the test</th></tr></thead>
+        <tbody><tr><td>GitHub's search API stops answering, or limits the request</td><td>No new repositories this week: the card says so</td></tr><tr><td>GitHub changes how its search works</td><td>A repository from the list loses stars or is deleted</td></tr></tbody>
+      </table></div>
+      <h3>Where's the test?</h3>
+      <pre><code>{ &quot;httpRequest&quot;: {
+    &quot;url&quot;: &quot;https://api.github.com/search/repositories?q=topic:documentation&amp;sort=stars&amp;order=desc&amp;per_page=1&quot;,
+    &quot;method&quot;: &quot;get&quot;,
+    &quot;statusCodes&quot;: [200]
+} }</code></pre>
+      <p class="test-link">Request headers are left out here. <a href="https://github.com/anglnmonica/living-captures/blob/main/tests/sources.spec.json">See the full test on GitHub</a></p>
+    </details>
     <p class="receipt" data-tests="docs-tools-source"></p>
   </section>
 </main>
+
+<section class="wrap run-it" id="run-it" aria-labelledby="run-it-h">
+  <h2 id="run-it-h">Run it yourself</h2>
+  <div class="run-grid">
+    <div>
+      <h3>When does it run?</h3>
+      <p>Every morning at 5:23 AM Pacific time (6:23 AM in summer), and whenever I change the site. Anyone can see <a href="https://github.com/anglnmonica/living-captures/actions/workflows/capture.yml">every run and its test results</a> on GitHub.</p>
+    </div>
+    <div>
+      <h3>How do I run it in my own copy?</h3>
+      <p>Only the repository's owner can start a run in it, so make your own copy:</p>
+      <ol>
+        <li>On <a href="https://github.com/anglnmonica/living-captures">the repository</a>, select <strong>Fork</strong>.</li>
+        <li>In your fork, open <strong>Settings</strong> &gt; <strong>Pages</strong>, and set <strong>Source</strong> to <strong>GitHub Actions</strong>.</li>
+        <li>Open the <strong>Actions</strong> tab, and turn on workflows if GitHub asks.</li>
+        <li>Select <strong>Capture today</strong> &gt; <strong>Run workflow</strong>.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>How do I run it on my computer?</h3>
+      <p>You need Node.js 22 or later and Python 3:</p>
+      <pre><code>node scripts/capture.mjs
+python3 -m http.server 8000 --directory site &amp;
+npx doc-detective@4 --config .doc-detective.json \
+  --input tests --output results -r terminal -r runFolder
+node scripts/results.mjs results</code></pre>
+      <p>Then open <code>http://localhost:8000</code>.</p>
+    </div>
+  </div>
+</section>
 
 <footer class="wrap foot">
   <p>Built by <a href="https://anglnmonica.github.io/">Angelin Monica Selvaraj</a>. The tests, the capture script, and this page are in the <a href="https://github.com/anglnmonica/living-captures">living-captures repository</a>. A failing test isn't always a broken page: a red status test means that tool is having problems today, which is what that capture is for.</p>
