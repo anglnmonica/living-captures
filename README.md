@@ -1,6 +1,7 @@
-# Living captures
+# The Morning Beat
 
-Small daily tests that capture something new every day, published at
+Every morning, a detective walks the same beat: small daily tests that
+capture something new every day, published at
 https://anglnmonica.github.io/living-captures/.
 
 Each morning, GitHub Actions runs [`scripts/capture.mjs`](scripts/capture.mjs)

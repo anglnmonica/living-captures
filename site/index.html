@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Living captures</title>
-<meta name="description" content="Small daily tests that capture something new every day: Berkeley weather and what to wear, NASA's picture of the day, tool status, new documentation tools, and a German word. Each capture is checked by Doc Detective.">
+<title>The Morning Beat</title>
+<meta name="description" content="The Morning Beat: small daily tests that capture something new every day: Berkeley weather and what to wear, NASA's picture of the day, tool status, new documentation tools, and a German word. Each capture is checked by Doc Detective.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;500&display=swap">
@@ -17,8 +17,8 @@
 <header class="top">
   <div class="wrap">
     <p class="date" id="today">Today</p>
-    <h1>Living captures</h1>
-    <p class="lede">Small tests that capture something new every day. Each morning, GitHub Actions fetches today's data, then <a href="https://github.com/doc-detective/doc-detective">Doc Detective</a> checks every source and this page. Each card shows the test that checked it.</p>
+    <h1>The Morning Beat</h1>
+    <p class="lede">Every morning, a detective walks the same beat. GitHub Actions fetches today's data from five sources, then <a href="https://github.com/doc-detective/doc-detective">Doc Detective</a> checks each source and this page. Each card shows the test that checked it.</p>
     <p class="run" id="run">Loading the latest run…</p>
   </div>
 </header>
@@ -79,7 +79,7 @@
       </table></div>
       <h3>Where's the test?</h3>
       <pre><code>{ &quot;goTo&quot;: &quot;http://localhost:8000/&quot; },
-{ &quot;find&quot;: { &quot;selector&quot;: &quot;h1&quot;, &quot;elementText&quot;: &quot;Living captures&quot; } },
+{ &quot;find&quot;: { &quot;selector&quot;: &quot;h1&quot;, &quot;elementText&quot;: &quot;The Morning Beat&quot; } },
 { &quot;find&quot;: { &quot;selector&quot;: &quot;#german .word, #german .error&quot;, &quot;timeout&quot;: 10000 } },
 { &quot;screenshot&quot;: { &quot;path&quot;: &quot;today.png&quot;, &quot;directory&quot;: &quot;site/data&quot;, &quot;overwrite&quot;: &quot;true&quot; } }</code></pre>
       <p class="test-link">These are four of the test's eight steps. <a href="https://github.com/anglnmonica/living-captures/blob/main/tests/page.spec.json">See the full test on GitHub</a></p>
