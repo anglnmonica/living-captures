@@ -98,6 +98,12 @@ details.how ul { margin: 6px 0 0; padding-left: 20px; }
 .repos .meta { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
 .repos p { margin: 2px 0 0; font-size: 15px; }
 
+/* The real documentation problem each capture stands for */
+.why { max-width: 44em; margin: 0 0 12px; }
+.real-docs { margin-top: 16px; padding: 12px 14px; background: var(--sky); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; }
+.real-docs h3 { font-family: var(--body); font-size: 15px; font-weight: 600; margin: 0 0 4px; color: var(--accent); }
+.real-docs p { margin: 0; font-size: 15.5px; }
+
 /* "How this is tested" panels */
 details.tested { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; font-size: 15.5px; }
 details.tested > summary { cursor: pointer; font-weight: 600; color: var(--accent); }

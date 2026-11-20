@@ -19,6 +19,7 @@
     <p class="date" id="today">Today</p>
     <h1>The Morning Beat</h1>
     <p class="lede">Every morning, a detective walks the same beat. GitHub Actions fetches today's data from five sources, then <a href="https://github.com/doc-detective/doc-detective">Doc Detective</a> checks each source and this page. Each card shows the test that checked it.</p>
+    <p class="why">Each capture is a simple, everyday example of a real problem in technical documentation, such as an API example that stops working or a link to a standard that moves. Weather and space pictures are easier to show than a customer's network, but the tests work the same way. Each card's <strong>In real docs</strong> note names the problem it stands for.</p>
     <p class="run" id="run">Loading the latest run…</p>
   </div>
 </header>
@@ -40,6 +41,10 @@
         <li>Wind 15 mph or more: something windproof.</li>
       </ul>
     </details>
+    <div class="real-docs">
+      <h3>In real docs: chained API calls</h3>
+      <p>Many API guides chain calls: one response gives you the ID or address for the next request. In a private 5G API, you might look up a site ID, then use it to list the site's small cells. When the first response changes, every later step in the guide breaks. A test like this catches it before a customer copies a broken example.</p>
+    </div>
     <details class="tested">
       <summary>How this is tested</summary>
       <h3>What does this prove?</h3>
@@ -66,6 +71,10 @@
   <section class="card narrow-right" id="german" aria-labelledby="german-h">
     <h2 id="german-h">German word of the day</h2>
     <div class="body"><p class="empty">Loading today's word…</p></div>
+    <div class="real-docs">
+      <h3>In real docs: the docs site itself</h3>
+      <p>Docs can be correct and still fail readers when the site breaks: a theme upgrade hides the navigation, or a version switcher stops loading. This test opens the page in a real browser, as a reader would, after every change. It's the same idea as testing that every page of a docs site still renders after an upgrade.</p>
+    </div>
     <details class="tested">
       <summary>How this is tested</summary>
       <h3>What does this prove?</h3>
@@ -90,6 +99,10 @@
   <section class="card full" id="apod" aria-labelledby="apod-h">
     <h2 id="apod-h">NASA's astronomy picture of the day</h2>
     <div class="body"><p class="empty">Loading today's picture…</p></div>
+    <div class="real-docs">
+      <h3>In real docs: sources that move</h3>
+      <p>Docs depend on pages they don't control. NASA moved its picture of the day to a new address while I was building this. In telecom docs, the same thing happens to links to 3GPP specifications, FCC rules, and vendor datasheets. A test like this notices the move, and a fallback keeps the content useful until someone updates the link.</p>
+    </div>
     <details class="tested">
       <summary>How this is tested</summary>
       <h3>What does this prove?</h3>
@@ -116,6 +129,10 @@
   <section class="card narrow-left" id="status" aria-labelledby="status-h">
     <h2 id="status-h">Status of the tools I use</h2>
     <div class="body"><p class="empty">Loading status…</p></div>
+    <div class="real-docs">
+      <h3>In real docs: promises about availability</h3>
+      <p>Docs make promises about services: "the sandbox is always available," or "this API has no known issues." These tests check that kind of promise against the source, every day. They fail on purpose when the promise isn't true, which is the signal to update a known-issues page or a status note.</p>
+    </div>
     <details class="tested">
       <summary>How this is tested</summary>
       <h3>What does this prove?</h3>
@@ -142,6 +159,10 @@
   <section class="card wide-right" id="docs-tools" aria-labelledby="docs-h">
     <h2 id="docs-h">New documentation tools on GitHub</h2>
     <div class="body"><p class="empty">Loading repositories…</p></div>
+    <div class="real-docs">
+      <h3>In real docs: values that go out of date</h3>
+      <p>Phrases like "the latest version," "in the past week," or "supported until next year" are true on the day they're written, then quietly go stale. This capture works out its date range each morning instead of storing one. Docs can do the same: generate the current version number or date from the source, and test it, so the page never says something that used to be true.</p>
+    </div>
     <details class="tested">
       <summary>How this is tested</summary>
       <h3>What does this prove?</h3>
